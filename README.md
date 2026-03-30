@@ -1,4 +1,4 @@
-# (OLD) Game Launcher for Raycast
+# (New) Game Launcher for Raycast
 
-Just use the default game thing in raycast now, its way better
+Just use this option, it’s better than the game default in Raycast
 
