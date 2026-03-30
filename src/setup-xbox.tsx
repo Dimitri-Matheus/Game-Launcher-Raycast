@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, Form, showToast, Toast, Icon, Cache } from "@raycast/api"
+import { Action, ActionPanel, Detail, Form, showToast, Toast, Icon, Cache, Keyboard } from "@raycast/api"
 import { useState } from "react"
 import { writeFileSync } from "fs"
 import { join } from "path"
@@ -361,6 +361,12 @@ The URL will look like:
                             icon={Icon.ArrowRight}
                             onAction={() => setState({ step: "token-input" })}
                         />
+                        <Action.CopyToClipboard
+                            title="Copy Sign-in"
+                            content={state.authUrl!}
+                            icon={Icon.Clipboard}
+                            shortcut={{ modifiers: ["ctrl"], key: "c" }}
+                        />
                         <Action title="Cancel" icon={Icon.XMarkCircle} onAction={() => setState({ step: "status" })} />
                     </ActionPanel>
                 }
@@ -457,7 +463,9 @@ You won't need to authenticate again unless you clear your Raycast cache.`}
     }
 
     // Default status view
-    const markdown = `# 🎮 Xbox Games Setup
+    const xboxSvgBase64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTM2OS45IDMxOC4yYzQ0LjMgNTQuMyA2NC43IDk4LjggNTQuNCAxMTguNy03LjkgMTUuMS01Ni43IDQ0LjYtOTIuNiA1NS45LTI5LjYgOS4zLTY4LjQgMTMuMy0xMDAuNCAxMC4yLTM4LjItMy43LTc2LjktMTcuNC0xMTAuMS0zOUM5My4zIDQ0NS44IDg3IDQzOC4zIDg3IDQyMy40YzAtMjkuOSAzMi45LTgyLjMgODkuMi0xNDIuMSAzMi0zMy45IDc2LjUtNzMuNyA4MS40LTcyLjYgOS40IDIuMSA4NC4zIDc1LjEgMTEyLjMgMTA5LjV6TTE4OC42IDE0My44Yy0yOS43LTI2LjktNTguMS01My45LTg2LjQtNjMuNC0xNS4yLTUuMS0xNi4zLTQuOC0yOC43IDguMS0yOS4yIDMwLjQtNTMuNSA3OS43LTYwLjMgMTIyLjQtNS40IDM0LjItNi4xIDQzLjgtNC4yIDYwLjUgNS42IDUwLjUgMTcuMyA4NS40IDQwLjUgMTIwLjkgOS41IDE0LjYgMTIuMSAxNy4zIDkuMyA5LjktNC4yLTExLjAtLjMtMzcuNSA5LjUtNjQgMTQuMy0zOS4wIDUzLjktMTEyLjkgMTIwLjMtMTk0LjR6bTMxMS42IDYzLjVDNDgzLjMgMTI3LjMgNDMyLjcgNzcgNDI1LjYgNzdjLTcuMyAwLTI0LjIgNi41LTM2IDEzLjktMjMuMyAxNC41LTQxIDMxLjQtNjQuMyA1Mi44QzM2Ny43IDE5NyA0MjcuNSAyODMuMSA0NDguMiAzNDZjNi44IDIwLjcgOS43IDQxLjEgNy40IDUyLjMtMS43IDguNS0xLjcgOC41IDEuNCA0LjYgNi4xLTcuNyAxOS45LTMxLjMgMjUuNC00My41IDcuNC0xNi4yIDE1LTQwLjIgMTguNi01OC43IDQuMy0yMi41IDMuOS03MC44LS44LTkzLjR6TTE0MS4zIDQzQzE4OS4wIDQwLjUgMjUxIDc3LjUgMjU1LjYgNzguNGMuNy4xIDEwLjQtNC4yIDIxLjYtOS43IDYzLjktMzEuMSA5NC0yNS44IDEwNy40LTI1LjItNjMuOS0zOS4zLTE1Mi43LTUwLTIzMy45LTExLjctMjMuNCAxMS4xLTI0IDExLjktOS40IDExLjJ6Ii8+PC9zdmc+"
+    const xboxIcon = `![xbox](${xboxSvgBase64}?raycast-height=24&raycast-width=24)`
+    const markdown = `# ${xboxIcon} Xbox Games Setup
 
 ## Current Status
 

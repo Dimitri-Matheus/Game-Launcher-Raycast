@@ -7,14 +7,18 @@ import { existsSync } from "fs"
  * Returns the executable path if it exists, undefined otherwise
  * Raycast will handle the icon extraction natively using fileIcon
  */
-export function getGameIcon(executablePath: string | undefined): string | undefined {
-    if (!executablePath) {
-        return undefined
+export function getGameIcon(iconPath?: string) {
+    if (!iconPath) return undefined
+    
+    if (iconPath.endsWith(".exe")) {
+        return { fileIcon: iconPath }
     }
     
-    if (existsSync(executablePath)) {
-        return executablePath
+    // If it's an absolute Windows path (e.g. C:/...), add file:///
+    const normalizedPath = iconPath.replace(/\\/g, "/")
+    if (normalizedPath.match(/^[a-zA-Z]:/)) {
+        return { source: `file:///${normalizedPath}` }
     }
-    
-    return undefined
+
+    return { source: normalizedPath }
 }

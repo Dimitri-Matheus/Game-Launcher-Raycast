@@ -3,6 +3,7 @@ import { useCachedPromise } from "@raycast/utils"
 import { useState } from "react"
 import { exec } from "child_process"
 import { promisify } from "util"
+import { getGameIcon } from "./utils/IconUtils"
 import { Game, Preferences, ISyncEngine } from "./platforms/interfaces"
 import { SteamSyncEngine } from "./platforms/steam/SteamSyncEngine"
 import { EpicSyncEngine } from "./platforms/epic/EpicSyncEngine"
@@ -14,10 +15,15 @@ import { ShortcutsSyncEngine } from "./platforms/shortcuts/ShortcutsSyncEngine"
 const execAsync = promisify(exec)
 const preferences: Preferences = getPreferenceValues()
 
-function createFancyGameTitle(title: string, isFavorite?: boolean, description?: string): string {
+function createFancyGameTitle(title: string, isFavorite?: boolean, description?: string, iconUrl?: string): string {
     const favoriteIcon = isFavorite ? " ⭐" : ""
     const gameDescription = description ? `\n\n${description}` : ""
-    return `# 🎮 ${title}${favoriteIcon}\n\n---${gameDescription}`
+    
+    const phosphorIconUrl = "https://api.iconify.design/ph:joystick-fill.svg?color=white&height=32"
+    const titleIcon = `![icon](${phosphorIconUrl}?raycast-height=28&raycast-width=28)`
+    // const titleIcon = iconUrl ? `![icon](${iconUrl}?raycast-height=24&raycast-width=24)` : "🎮"
+
+    return `# ${titleIcon} ${title}${favoriteIcon}\n\n---${gameDescription}`
 }
 
 // Game loading using modular sync engines (like C# Flow Launcher architecture)
@@ -183,16 +189,16 @@ export default function Command() {
                                           markdown={fancyTitle}
                                           metadata={
                                               <List.Item.Detail.Metadata>
-                                                  {game.source && (
+                                                  {game.source ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.Label title="Source" text={game.source} />
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
-                                                  {game.developers?.length && (
+                                                  ): null}
+                                                  {game.developers && game.developers.length > 0 ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.TagList
-                                                              title={`Developer${game.developers.length > 1 ? "s" : ""}`}
+                                                              title={`Developer${game.developers.length > 0 ? "s" : ""}`}
                                                           >
                                                               {game.developers.map((dev, index) => (
                                                                   <List.Item.Detail.Metadata.TagList.Item
@@ -203,11 +209,11 @@ export default function Command() {
                                                           </List.Item.Detail.Metadata.TagList>
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
-                                                  {game.publishers?.length && (
+                                                  ): null}
+                                                  {game.publishers && game.publishers.length > 0 ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.TagList
-                                                              title={`Publisher${game.publishers.length > 1 ? "s" : ""}`}
+                                                              title={`Publisher${game.publishers.length > 0 ? "s" : ""}`}
                                                           >
                                                               {game.publishers.map((pub, index) => (
                                                                   <List.Item.Detail.Metadata.TagList.Item
@@ -218,8 +224,8 @@ export default function Command() {
                                                           </List.Item.Detail.Metadata.TagList>
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
-                                                  {game.genres?.length && (
+                                                  ): null}
+                                                  {game.genres && game.genres.length > 0 && (
                                                       <>
                                                           <List.Item.Detail.Metadata.TagList title="Genres">
                                                               {game.genres.map((genre, index) => (
@@ -232,7 +238,7 @@ export default function Command() {
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
                                                   )}
-                                                  {game.releaseDate && (
+                                                  {game.releaseDate ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.Label
                                                               title="Release Date"
@@ -240,14 +246,14 @@ export default function Command() {
                                                           />
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
-                                                  {game.added && (
+                                                  ): null}
+                                                  {game.added ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.Label title="Added" text={game.added} />
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
-                                                  {game.lastActivity && (
+                                                  ): null}
+                                                  {game.lastActivity ? (
                                                       <>
                                                           <List.Item.Detail.Metadata.Label
                                                               title="Last Activity"
@@ -255,7 +261,7 @@ export default function Command() {
                                                           />
                                                           <List.Item.Detail.Metadata.Separator />
                                                       </>
-                                                  )}
+                                                  ): null}
                                                   <List.Item.Detail.Metadata.Label title="Platform" text={game.platform} />
                                                   <List.Item.Detail.Metadata.Separator />
                                                   <List.Item.Detail.Metadata.Label title="Game ID" text={game.id} />
@@ -271,13 +277,7 @@ export default function Command() {
                                 key={game.id}
                                 title={game.title}
                                 subtitle={!showingDetail ? undefined : undefined}
-                                icon={
-                                    game.iconPath
-                                        ? game.iconPath.endsWith(".exe")
-                                            ? { fileIcon: game.iconPath }
-                                            : { source: game.iconPath }
-                                        : undefined
-                                }
+                                icon={getGameIcon(game.iconPath)}
                                 {...props}
                                 actions={
                                     <ActionPanel>
@@ -364,13 +364,13 @@ export default function Command() {
                                   markdown={fancyTitle}
                                   metadata={
                                       <List.Item.Detail.Metadata>
-                                          {game.source && (
+                                          {game.source ? (
                                               <>
                                                   <List.Item.Detail.Metadata.Label title="Source" text={game.source} />
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
-                                          {game.developers?.length && (
+                                          ) : null}
+                                          {game.developers && game.developers.length > 0 ? (
                                               <>
                                                   <List.Item.Detail.Metadata.TagList
                                                       title={`Developer${game.developers.length > 1 ? "s" : ""}`}
@@ -384,8 +384,8 @@ export default function Command() {
                                                   </List.Item.Detail.Metadata.TagList>
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
-                                          {game.publishers?.length && (
+                                          ): null}
+                                          {game.publishers && game.publishers.length > 0 ? (
                                               <>
                                                   <List.Item.Detail.Metadata.TagList
                                                       title={`Publisher${game.publishers.length > 1 ? "s" : ""}`}
@@ -399,8 +399,8 @@ export default function Command() {
                                                   </List.Item.Detail.Metadata.TagList>
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
-                                          {game.genres?.length && (
+                                          ): null}
+                                          {game.genres && game.genres.length > 0 && (
                                               <>
                                                   <List.Item.Detail.Metadata.TagList title="Genres">
                                                       {game.genres.map((genre, index) => (
@@ -413,7 +413,7 @@ export default function Command() {
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
                                           )}
-                                          {game.releaseDate && (
+                                          {game.releaseDate ? (
                                               <>
                                                   <List.Item.Detail.Metadata.Label
                                                       title="Release Date"
@@ -421,14 +421,14 @@ export default function Command() {
                                                   />
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
-                                          {game.added && (
+                                          ): null}
+                                          {game.added ? (
                                               <>
                                                   <List.Item.Detail.Metadata.Label title="Added" text={game.added} />
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
-                                          {game.lastActivity && (
+                                          ): null}
+                                          {game.lastActivity ? (
                                               <>
                                                   <List.Item.Detail.Metadata.Label
                                                       title="Last Activity"
@@ -436,7 +436,7 @@ export default function Command() {
                                                   />
                                                   <List.Item.Detail.Metadata.Separator />
                                               </>
-                                          )}
+                                          ): null}
                                           <List.Item.Detail.Metadata.Label title="Platform" text={game.platform} />
                                           <List.Item.Detail.Metadata.Separator />
                                           <List.Item.Detail.Metadata.Label title="Game ID" text={game.id} />
@@ -452,13 +452,7 @@ export default function Command() {
                         key={game.id}
                         title={game.title}
                         subtitle={!showingDetail ? game.platform : undefined}
-                        icon={
-                          game.iconPath 
-                          ? game.iconPath.endsWith(".exe")
-                            ? { fileIcon: game.iconPath }
-                            : { source: game.iconPath }
-                          : undefined
-                        }
+                        icon={getGameIcon(game.iconPath)}
                         {...props}
                         actions={
                             <ActionPanel>
